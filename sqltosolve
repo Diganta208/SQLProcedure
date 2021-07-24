@@ -1,0 +1,31 @@
+DECLARE @Counter INT 
+DECLARE @Division INT
+DEClARE @Result varchar(50)
+set @Counter=2
+set @Result= 'false'
+while(@Counter<=10)
+begin
+
+  set @Division=CEILING(SQRT(@Counter))
+  print(@Division)
+  while(@Division>1)
+  begin
+    if(@Counter%@Division=0)
+    begin 
+      set @Result='true'
+      BREAK;
+    end
+    else
+    begin 
+        set  @Division=@Division-1
+    end
+  
+  end
+  
+  if(@Result='false') print(@Counter+'&')
+   
+  set @Counter= @Counter+1
+end
+
+
+select CEILING(SQRT(2))
