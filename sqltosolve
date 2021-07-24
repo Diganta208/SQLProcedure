@@ -3,12 +3,11 @@ DECLARE @Division INT
 DEClARE @Result varchar(50)
 set @Counter=2
 set @Result= 'false'
-while(@Counter<=10)
+while(@Counter<=1000)
 begin
 
-  set @Division=CEILING(SQRT(@Counter))
-  print(@Division)
-  while(@Division>1)
+  set @Division=2
+  while(@Division<=SQRT(@Counter))
   begin
     if(@Counter%@Division=0)
     begin 
@@ -17,15 +16,13 @@ begin
     end
     else
     begin 
-        set  @Division=@Division-1
+        set  @Division=@Division+1
     end
   
   end
   
-  if(@Result='false') print(@Counter+'&')
+ if(@Result='false') print(@Counter+'&')
+ set @Result='false'
    
   set @Counter= @Counter+1
 end
-
-
-select CEILING(SQRT(2))
