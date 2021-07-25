@@ -1,0 +1,3 @@
+select distinct CITY from STATION where CITY in (SELECT CITY from STATION where SUBSTRING(CITY,0,LEN(CITY)-(LEN(CITY)-2)) 
+not in ('a','e','i','o','u') ) and  CITY in (SELECT CITY from STATION where SUBSTRING(CITY,LEN(CITY),LEN(CITY)-(LEN(CITY)-2))
+not in ('a','e','i','o','u') ) order by CITY
