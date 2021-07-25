@@ -1,0 +1,1 @@
+select STR(MAX(LAT_N), 9, 4) from  STATION where LAT_N<137.2345
