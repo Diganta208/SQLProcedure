@@ -1,0 +1,1 @@
+select((select max(population) from CITY)-(select min(population) from CITY))
