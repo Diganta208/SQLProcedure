@@ -1,0 +1,57 @@
+ALTER proc [dbo].[production_breakdown_Report]
+@ShadeName varchar(50),
+@ShiftName varchar(20),
+@MachineNo nvarchar(50),
+@EmpName nvarchar(50),
+@date date,
+@date1 date
+as
+
+
+SELECT format([PROD_DATE],'dd/MM/yyyy') as ProdDate
+      ,ef.[SHIFT_ID] as ShiftName
+      ,m.MachineNo
+      ,[SHED_NAME] as ShedName
+	  ,AVG(m.Speed) as Speed
+	
+	  ,SUM([PICK]*[REPEAT]) AS 'ProducedPick'
+      , case
+	    When ef.[SHIFT_ID]='A' then 440*AVG(m.Speed)
+		when ef.[SHIFT_ID]='B' then 470*AVG(m.Speed)
+		else 500*AVG(m.Speed)
+		end
+		as 'TargetCapacity'
+      ,
+	
+	  STR((SUM([PICK]*[REPEAT])/cast( case
+	    When ef.[SHIFT_ID]='A' then 440*AVG(m.Speed)
+		when ef.[SHIFT_ID]='B' then 470*AVG(m.Speed)
+		else 500*AVG(m.Speed)
+		end as decimal(10,2)))*100,5,2) as Efficiency
+      ,AVG([STOP_WRAP]) as STOP_WARP 
+      ,AVG([STOP_WEFT]) as STOP_WEFT
+      ,AVG([STOP_OTHERS]) as STOP_OTHERS
+	  ,AVG(isnull([Power],0)) as [Power],
+	  AVG(isnull([Maintenance],0)) as Maintenance,
+--	  [No_work],
+--	  (isnull([STOP_WRAP],0)+isnull([STOP_WEFT],0)+isnull([STOP_OTHERS],0)+isnull([Power],0)+ isnull([Maintenance],0)+isnull([No_work],0))  as TotalBreakdown,
+      [REMARKS]
+	  
+  
+      
+  FROM  [dbo].[PLAN_WOVEM_MACHINE_EFFICIENCY] ef
+  inner join PLAN_MachineMaster_Tbl m on ef.MACHINE_ID=m.MachineID
+  inner join PSN_EMPLOYEE e on e.EMP_ID=ef.OPERATOR_ID
+  inner join ORD_WorkOrderMaster_Tbl w on w.WorkOrderID=ef.ORDER_ID
+  inner join NPD_SampleGeneralSpec_Tbl s on s.SampleID=ef.SAMPLE_ID
+  inner join Com_EmployeePersonalInfo_tbl ep on ep.Emp_ID = ef.CREATED_BY
+  
+  where ef.PROD_DATE between @date and @date1
+  and ef.SHED_NAME=case when @ShadeName='' then  ef.SHED_NAME else @ShadeName end
+  and ef.SHIFT_ID=case when @ShiftName='' then ef.SHIFT_ID else @ShiftName end
+  and ef.STATUS<>255
+  and m.MachineNo LIKE '%' + @MachineNo + '%'
+  and e.EMP_NAME_ENG +  '-' + cast(cast(e.EMP_CARD_NO as int) as varchar) LIKE '%' + @EmpName + '%'
+  group by [PROD_DATE],ef.[SHIFT_ID],m.MachineNo,[SHED_NAME],[REMARKS]
+
+  order by [ProdDate] DESC, [SHED_NAME],PROD_DATE,ef.[SHIFT_ID]
