@@ -1,0 +1,1 @@
+select str((((select max(LAT_N) from station)-(select min(LAT_N) from station))+((select max(LONG_W ) from station)-(select min(LONG_W ) from station))),10,4)
