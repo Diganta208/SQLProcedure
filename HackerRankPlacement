@@ -1,0 +1,5 @@
+select St.Name from Students as st join Friends as fr on St.Id=fr.Id
+join packages as pa on pa.Id=fr.Id
+join packages as pr on pr.Id=fr.Friend_Id
+
+where pr.Salary>pa.Salary order by pr.Salary
