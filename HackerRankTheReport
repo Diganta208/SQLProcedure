@@ -1,3 +1,1 @@
-select (case when Marks>69 then name else null end),(select grade from Grades where Marks>=Min_Mark and Marks<=Max_Mark)as grades,Marks from Students order by 
-(case when grades<8 then grades desc,Marks
- else grades desc end )
+select (case when Marks>69 then name else null end),(select grade from Grades where Marks>=Min_Mark and Marks<=Max_Mark)as grades,Marks from Students 
