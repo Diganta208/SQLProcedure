@@ -1,0 +1,14 @@
+ALTER procedure [dbo].[getMaintenanceDailyEntry](
+@fromDate as varchar(50),
+@toDate as varchar(50)
+)
+as
+
+select MDE.maintenanceEntryId, Np.ProductCategoryName as Department, convert(varchar,workingDate,105) as 'Working Date', PM.MachineNo,IcS.SHIFT_NAME_ENG as Shfit,problem as Problem,CONVERT(varchar(15),CAST(stopingTime AS TIME),100) as 'Stop Time',
+CONVERT(varchar(15),CAST(restartTime AS TIME),100) as 'Restart Time',DATEDIFF(MINUTE, stopingTime, restartTime) as 'Mnt. Duration (Minute)',
+
+CE.FirstName as Oparetor, DE.FathersName as 'Created By' from MaintenanceDailyEntry_Tbl MDE inner join NPD_ProductCategory_Tbl NP on MDE.departmentID=NP.ProductCategoryID
+inner join ICG_SHIFT IcS on  MDE.shiftID=IcS.SHIFT_ID inner join PLAN_MachineMaster_Tbl PM on PM.MachineID=MDE.machineID
+inner join Com_EmployeePersonalInfo_tbl CE on CE.Emp_ID=MDE.operatorId 
+inner join Com_EmployeePersonalInfo_tbl DE on DE.Emp_ID=MDE.createdBy 
+where MDE.workingDate between Cast(@fromDate as date) and Cast(@toDate as date) order by MDE.maintenanceEntryId desc
