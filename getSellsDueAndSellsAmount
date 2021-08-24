@@ -1,0 +1,24 @@
+Create proc [dbo].[getSellsDueAndSellsAmount]
+as
+
+begin
+
+select (isnull(SUM(case when isnull(WD.AdjQty,0)>0 then WD.AdjQty else WD.OrderQty end),0) -cast(isnull(sum(C.ChalanQty),0) as int) ) as dueOrderValue,
+cast(isnull(SUM(case when isnull(WD.AdjAmount,0)>0 then WD.AdjAmount else WD.OrderValue end),0) as decimal(10,2))-Sum(C.ChalanValue) as DueOrderAmount
+from ORD_WorkOrderMaster_Tbl WM
+join ORD_WorkOrderDetail_Tbl WD on WM.WorkOrderID=WD.WorkOrderID
+left join(
+select CM.WorkOrderMasterID,isnull(sum(CB.ChallanBreakDownQty),0) as ChalanQty,
+--cast(isnull(SUM(case when isnull(WOD.AdjAmount,0)>0 then WOD.AdjAmount else WOD.OrderValue end),0) as decimal(10,2)) ChalanValue
+ cast(isnull(sum((((case when isnull(WOD.AdjAmount,0)>0 then WOD.AdjAmount else WOD.OrderValue end)/(case when isnull(WOD.AdjQty,0)>0 then WOD.AdjQty else WOD.OrderQty end))*isnull(CB.ChallanBreakDownQty,0))),0)as decimal(10,2)) ChalanValue
+from ORD_DeliveryChallanMaster_Tbl CM 
+join ORD_DeliveryChallanDetails_Tbl CD on CM.DeliveryChallanID= CD.DeliveryChallanID
+join ORD_DeliveryChallanBreakDownDetails_Tbl CB on CB.DeliveryChallanDetailsID=CD.DeliveryChallanDetailsID
+join ORD_WorkOrderMaster_Tbl WOM on WOM.WorkOrderID=CM.WorkOrderMasterID
+join ORD_WorkOrderDetail_Tbl WOD on WOD.WorkOrderID=WOM.WorkOrderID
+where CM.StatusID<>255 and CD.StatusID<>255 group by CM.WorkOrderMasterID 
+) as C on C.WorkOrderMasterID=WM.WorkOrderID
+where EstDeliverDate between cast(getDate() as date) and cast(GETDATE() as date) and WM.StatusID<>255 and WD.StatusID<>255
+
+
+end
