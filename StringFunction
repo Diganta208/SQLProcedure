@@ -1,0 +1,18 @@
+declare  @email as varchar(50)='Digantadey96@gmail.com'
+
+select PATINDEX('%@gmail.com', @email)
+
+select REPLACE(@email,'.com','.net')
+
+select STUFF(@email,11,2,'208') -- as like as replace.. 3rd argument is next how many caracter has to be changed
+
+select SUBSTRING(@email,1,CHARINDEX('@',@email,1)-1)
+
+select CHARINDEX('@',@email,1)
+
+select SUBSTRING(@email,1,2)+REPLICATE('*',CHARINDEX('@',@email,1)-3)+SUBSTRING(@email,CHARINDEX('@',@email,1),LEN(@email)) as Email
+
+declare @firstName as varchar(50)='Diganta'
+declare @secodName as varchar(50)='Dey'
+
+select @firstName+SPACE(5)+@secodName
